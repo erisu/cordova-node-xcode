@@ -94,6 +94,24 @@ exports.addTarget = {
 
         test.done();
     },
+    'should create a new target with bundleid': function (test) {
+        var target = proj.addTarget(TARGET_NAME, TARGET_TYPE, TARGET_SUBFOLDER_NAME, TARGET_BUNDLE_ID);
+
+        test.ok(typeof target == 'object');
+        test.ok(target.uuid);
+        test.ok(target.pbxNativeTarget);
+        test.ok(target.pbxNativeTarget.isa);
+        test.ok(target.pbxNativeTarget.name);
+        test.ok(target.pbxNativeTarget.productName);
+        test.ok(target.pbxNativeTarget.productReference);
+        test.ok(target.pbxNativeTarget.productType);
+        test.ok(target.pbxNativeTarget.buildConfigurationList);
+        test.ok(target.pbxNativeTarget.buildPhases);
+        test.ok(target.pbxNativeTarget.buildRules);
+        test.ok(target.pbxNativeTarget.dependencies);
+
+        test.done();
+    },
     'should add debug and release configurations to build configuration list': function (test) {
         var pbxXCBuildConfigurationSection = proj.pbxXCBuildConfigurationSection(),
             pbxXCConfigurationList = proj.pbxXCConfigurationList(),
@@ -145,21 +163,6 @@ exports.addTarget = {
         var buildCommentKey = target.pbxNativeTarget.buildConfigurationList + '_comment';
         test.ok(pbxXCConfigurationList[buildCommentKey]);
         test.equals(pbxXCConfigurationList[buildCommentKey], 'Build configuration list for PBXNativeTarget "' + TARGET_NAME + '"');
-    'should create a new target with bundleid': function (test) {
-        var target = proj.addTarget(TARGET_NAME, TARGET_TYPE, TARGET_SUBFOLDER_NAME, TARGET_BUNDLE_ID);
-
-        test.ok(typeof target == 'object');
-        test.ok(target.uuid);
-        test.ok(target.pbxNativeTarget);
-        test.ok(target.pbxNativeTarget.isa);
-        test.ok(target.pbxNativeTarget.name);
-        test.ok(target.pbxNativeTarget.productName);
-        test.ok(target.pbxNativeTarget.productReference);
-        test.ok(target.pbxNativeTarget.productType);
-        test.ok(target.pbxNativeTarget.buildConfigurationList);
-        test.ok(target.pbxNativeTarget.buildPhases);
-        test.ok(target.pbxNativeTarget.buildRules);
-        test.ok(target.pbxNativeTarget.dependencies);
 
         test.done();
     },
