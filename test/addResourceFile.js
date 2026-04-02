@@ -17,270 +17,273 @@
     under the License.
 */
 
-var fullProject = require('./fixtures/full-project')
-    fullProjectStr = JSON.stringify(fullProject),
-    pbx = require('../lib/pbxProject'),
-    pbxFile = require('../lib/pbxFile'),
-    proj = new pbx('.');
+const { describe, it, beforeEach, afterEach } = require('node:test');
+const assert = require('node:assert');
+
+const fullProject = require('./fixtures/full-project');
+const fullProjectStr = JSON.stringify(fullProject);
+const pbx = require('../lib/pbxProject');
+const pbxFile = require('../lib/pbxFile');
+const proj = new pbx('.');
 
 function cleanHash() {
     return JSON.parse(fullProjectStr);
 }
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
+describe('addResourceFile', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
 
-exports.addResourceFile = {
-    'should return a pbxFile': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle');
+    it('should return a pbxFile', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        assert.equal(newFile.constructor, pbxFile);
+    });
 
-        test.equal(newFile.constructor, pbxFile);
-        test.done()
-    },
-    'should set a uuid on the pbxFile': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle');
+    it('should set a uuid on the pbxFile', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        assert.ok(newFile.uuid);
+    });
 
-        test.ok(newFile.uuid);
-        test.done()
-    },
-    'should set a fileRef on the pbxFile': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle');
+    it('should set a fileRef on the pbxFile', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        assert.ok(newFile.fileRef);
+    });
 
-        test.ok(newFile.fileRef);
-        test.done()
-    },
-    'should populate the PBXBuildFile section with 2 fields': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle'),
-            buildFileSection = proj.pbxBuildFileSection(),
-            bfsLength = Object.keys(buildFileSection).length;
+    it('should populate the PBXBuildFile section with 2 fields', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        const buildFileSection = proj.pbxBuildFileSection();
+        const bfsLength = Object.keys(buildFileSection).length;
 
-        test.equal(60, bfsLength);
-        test.ok(buildFileSection[newFile.uuid]);
-        test.ok(buildFileSection[newFile.uuid + '_comment']);
+        assert.equal(60, bfsLength);
+        assert.ok(buildFileSection[newFile.uuid]);
+        assert.ok(buildFileSection[newFile.uuid + '_comment']);
+    });
 
-        test.done();
-    },
-    'should add the PBXBuildFile comment correctly': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle'),
-            commentKey = newFile.uuid + '_comment',
-            buildFileSection = proj.pbxBuildFileSection();
+    it('should add the PBXBuildFile comment correctly', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        const commentKey = newFile.uuid + '_comment';
+        const buildFileSection = proj.pbxBuildFileSection();
 
-        test.equal(buildFileSection[commentKey], 'assets.bundle in Resources');
-        test.done();
-    },
-    'should add the PBXBuildFile object correctly': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle'),
-            buildFileSection = proj.pbxBuildFileSection(),
-            buildFileEntry = buildFileSection[newFile.uuid];
+        assert.equal(buildFileSection[commentKey], 'assets.bundle in Resources');
+    });
 
-        test.equal(buildFileEntry.isa, 'PBXBuildFile');
-        test.equal(buildFileEntry.fileRef, newFile.fileRef);
-        test.equal(buildFileEntry.fileRef_comment, 'assets.bundle');
+    it('should add the PBXBuildFile object correctly', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        const buildFileSection = proj.pbxBuildFileSection();
+        const buildFileEntry = buildFileSection[newFile.uuid];
 
-        test.done();
-    },
-    'should populate the PBXFileReference section with 2 fields': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle'),
-            fileRefSection = proj.pbxFileReferenceSection(),
-            frsLength = Object.keys(fileRefSection).length;
+        assert.equal(buildFileEntry.isa, 'PBXBuildFile');
+        assert.equal(buildFileEntry.fileRef, newFile.fileRef);
+        assert.equal(buildFileEntry.fileRef_comment, 'assets.bundle');
+    });
 
-        test.equal(68, frsLength);
-        test.ok(fileRefSection[newFile.fileRef]);
-        test.ok(fileRefSection[newFile.fileRef + '_comment']);
+    it('should populate the PBXFileReference section with 2 fields', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        const fileRefSection = proj.pbxFileReferenceSection();
+        const frsLength = Object.keys(fileRefSection).length;
 
-        test.done();
-    },
-    'should populate the PBXFileReference comment correctly': function (test) {
-        var newFile = proj.addResourceFile('assets.bundle'),
-            fileRefSection = proj.pbxFileReferenceSection(),
-            commentKey = newFile.fileRef + '_comment';
+        assert.equal(68, frsLength);
+        assert.ok(fileRefSection[newFile.fileRef]);
+        assert.ok(fileRefSection[newFile.fileRef + '_comment']);
+    });
 
-        test.equal(fileRefSection[commentKey], 'assets.bundle');
-        test.done();
-    },
-    'should add the PBXFileReference object correctly': function (test) {
+    it('should populate the PBXFileReference comment correctly', () => {
+        const newFile = proj.addResourceFile('assets.bundle');
+        const fileRefSection = proj.pbxFileReferenceSection();
+        const commentKey = newFile.fileRef + '_comment';
+
+        assert.equal(fileRefSection[commentKey], 'assets.bundle');
+    });
+
+    it('should add the PBXFileReference object correctly', () => {
         delete proj.pbxGroupByName('Resources').path;
 
-        var newFile = proj.addResourceFile('Resources/assets.bundle'),
-            fileRefSection = proj.pbxFileReferenceSection(),
-            fileRefEntry = fileRefSection[newFile.fileRef];
+        const newFile = proj.addResourceFile('Resources/assets.bundle');
+        const fileRefSection = proj.pbxFileReferenceSection();
+        const fileRefEntry = fileRefSection[newFile.fileRef];
 
-        test.equal(fileRefEntry.isa, 'PBXFileReference');
-        test.equal(fileRefEntry.fileEncoding, undefined);
-        test.equal(fileRefEntry.lastKnownFileType, 'wrapper.plug-in');
-        test.equal(fileRefEntry.name, '"assets.bundle"');
-        test.equal(fileRefEntry.path, '"Resources/assets.bundle"');
-        test.equal(fileRefEntry.sourceTree, '"<group>"');
+        assert.equal(fileRefEntry.isa, 'PBXFileReference');
+        assert.equal(fileRefEntry.fileEncoding, undefined);
+        assert.equal(fileRefEntry.lastKnownFileType, 'wrapper.plug-in');
+        assert.equal(fileRefEntry.name, '"assets.bundle"');
+        assert.equal(fileRefEntry.path, '"Resources/assets.bundle"');
+        assert.equal(fileRefEntry.sourceTree, '"<group>"');
+    });
 
-        test.done();
-    },
-    'should add to the Resources PBXGroup group': function (test) {
-        var newFile = proj.addResourceFile('Resources/assets.bundle'),
-            resources = proj.pbxGroupByName('Resources');
+    it('should add to the Resources PBXGroup group', () => {
+        proj.addResourceFile('Resources/assets.bundle');
+        const resources = proj.pbxGroupByName('Resources');
 
-        test.equal(resources.children.length, 10);
-        test.done();
-    },
-    'should have the right values for the PBXGroup entry': function (test) {
-        var newFile = proj.addResourceFile('Resources/assets.bundle'),
-            resources = proj.pbxGroupByName('Resources'),
-            resourceObj = resources.children[9];
+        assert.equal(resources.children.length, 10);
+    });
 
-        test.equal(resourceObj.comment, 'assets.bundle');
-        test.equal(resourceObj.value, newFile.fileRef);
-        test.done();
-    },
-    'should add to the PBXSourcesBuildPhase': function (test) {
-        var newFile = proj.addResourceFile('Resources/assets.bundle'),
-            sources = proj.pbxResourcesBuildPhaseObj();
+    it('should have the right values for the PBXGroup entry', () => {
+        const newFile = proj.addResourceFile('Resources/assets.bundle');
+        const resources = proj.pbxGroupByName('Resources');
+        const resourceObj = resources.children[9];
 
-        test.equal(sources.files.length, 13);
-        test.done();
-    },
-    'should have the right values for the Sources entry': function (test) {
-        var newFile = proj.addResourceFile('Resources/assets.bundle'),
-            sources = proj.pbxResourcesBuildPhaseObj(),
-            sourceObj = sources.files[12];
+        assert.equal(resourceObj.comment, 'assets.bundle');
+        assert.equal(resourceObj.value, newFile.fileRef);
+    });
 
-        test.equal(sourceObj.comment, 'assets.bundle in Resources');
-        test.equal(sourceObj.value, newFile.uuid);
-        test.done();
-    },
-    'should remove "Resources/" from path if group path is set': function (test) {
-        var resources = proj.pbxGroupByName('Resources'),
-            newFile;
+    it('should add to the PBXSourcesBuildPhase', () => {
+        proj.addResourceFile('Resources/assets.bundle');
+        const sources = proj.pbxResourcesBuildPhaseObj();
 
+        assert.equal(sources.files.length, 13);
+    });
+
+    it('should have the right values for the Sources entry', () => {
+        const newFile = proj.addResourceFile('Resources/assets.bundle');
+        const sources = proj.pbxResourcesBuildPhaseObj();
+        const sourceObj = sources.files[12];
+
+        assert.equal(sourceObj.comment, 'assets.bundle in Resources');
+        assert.equal(sourceObj.value, newFile.uuid);
+    });
+
+    it('should remove "Resources/" from path if group path is set', () => {
+        const resources = proj.pbxGroupByName('Resources');
         resources.path = '"Test200/Resources"';
-        newFile = proj.addResourceFile('Resources/assets.bundle');
 
-        test.equal(newFile.path, 'assets.bundle');
-        test.done();
-    },
-    'when added with { plugin: true }': {
+        const newFile = proj.addResourceFile('Resources/assets.bundle');
+        assert.equal(newFile.path, 'assets.bundle');
+    });
 
-        'should add the PBXFileReference with the "Plugins" path': function (test) {
+    //
+    // { plugin: true }
+    //
+    describe('when added with { plugin: true }', () => {
+
+        it('should add the PBXFileReference with the "Plugins" path', () => {
             delete proj.pbxGroupByName('Plugins').path;
 
-            var newFile = proj.addResourceFile('Plugins/assets.bundle',
-                                                { plugin: true }),
-                fileRefSection = proj.pbxFileReferenceSection(),
-                fileRefEntry = fileRefSection[newFile.fileRef];
+            const newFile = proj.addResourceFile(
+                'Plugins/assets.bundle',
+                { plugin: true }
+            );
 
-            test.equal(fileRefEntry.isa, 'PBXFileReference');
-            test.equal(fileRefEntry.fileEncoding, undefined);
-            test.equal(fileRefEntry.lastKnownFileType, 'wrapper.plug-in');
-            test.equal(fileRefEntry.name, '"assets.bundle"');
-            test.equal(fileRefEntry.path, '"Plugins/assets.bundle"');
-            test.equal(fileRefEntry.sourceTree, '"<group>"');
-            test.done();
-        },
+            const fileRefSection = proj.pbxFileReferenceSection();
+            const fileRefEntry = fileRefSection[newFile.fileRef];
 
-        'should add to the Plugins PBXGroup group': function (test) {
-            var newFile = proj.addResourceFile('Plugins/assets.bundle',
-                                                { plugin: true }),
-                plugins = proj.pbxGroupByName('Plugins');
+            assert.equal(fileRefEntry.isa, 'PBXFileReference');
+            assert.equal(fileRefEntry.fileEncoding, undefined);
+            assert.equal(fileRefEntry.lastKnownFileType, 'wrapper.plug-in');
+            assert.equal(fileRefEntry.name, '"assets.bundle"');
+            assert.equal(fileRefEntry.path, '"Plugins/assets.bundle"');
+            assert.equal(fileRefEntry.sourceTree, '"<group>"');
+        });
 
-            test.equal(plugins.children.length, 1);
-            test.done();
-        },
+        it('should add to the Plugins PBXGroup group', () => {
+            proj.addResourceFile('Plugins/assets.bundle', { plugin: true });
+            const plugins = proj.pbxGroupByName('Plugins');
 
-        'should have the Plugins values for the PBXGroup entry': function (test) {
-            var newFile = proj.addResourceFile('Plugins/assets.bundle',
-                                                { plugin: true }),
-                plugins = proj.pbxGroupByName('Plugins'),
-                pluginObj = plugins.children[0];
+            assert.equal(plugins.children.length, 1);
+        });
 
-            test.equal(pluginObj.comment, 'assets.bundle');
-            test.equal(pluginObj.value, newFile.fileRef);
-            test.done();
-        },
+        it('should have the Plugins values for the PBXGroup entry', () => {
+            const newFile = proj.addResourceFile(
+                'Plugins/assets.bundle',
+                { plugin: true }
+            );
 
-        'should add to the PBXSourcesBuildPhase': function (test) {
-            var newFile = proj.addResourceFile('Plugins/assets.bundle',
-                                                { plugin: true }),
-                sources = proj.pbxResourcesBuildPhaseObj();
+            const plugins = proj.pbxGroupByName('Plugins');
+            const pluginObj = plugins.children[0];
 
-            test.equal(sources.files.length, 13);
-            test.done();
-        },
+            assert.equal(pluginObj.comment, 'assets.bundle');
+            assert.equal(pluginObj.value, newFile.fileRef);
+        });
 
-        'should have the right values for the Sources entry': function (test) {
-            var newFile = proj.addResourceFile('Plugins/assets.bundle',
-                                                { plugin: true }),
-                sources = proj.pbxResourcesBuildPhaseObj(),
-                sourceObj = sources.files[12];
+        it('should add to the PBXSourcesBuildPhase', () => {
+            proj.addResourceFile('Plugins/assets.bundle', { plugin: true });
+            const sources = proj.pbxResourcesBuildPhaseObj();
 
-            test.equal(sourceObj.comment, 'assets.bundle in Resources');
-            test.equal(sourceObj.value, newFile.uuid);
-            test.done();
-        },
+            assert.equal(sources.files.length, 13);
+        });
 
-        'should remove "Plugins/" from path if group path is set': function (test) {
-            var plugins = proj.pbxGroupByName('Plugins'),
-                newFile;
+        it('should have the right values for the Sources entry', () => {
+            const newFile = proj.addResourceFile(
+                'Plugins/assets.bundle',
+                { plugin: true }
+            );
 
+            const sources = proj.pbxResourcesBuildPhaseObj();
+            const sourceObj = sources.files[12];
+
+            assert.equal(sourceObj.comment, 'assets.bundle in Resources');
+            assert.equal(sourceObj.value, newFile.uuid);
+        });
+
+        it('should remove "Plugins/" from path if group path is set', () => {
+            const plugins = proj.pbxGroupByName('Plugins');
             plugins.path = '"Test200/Plugins"';
-            newFile = proj.addResourceFile('Plugins/assets.bundle',
-                                            { plugin: true });
 
-            test.equal(newFile.path, 'assets.bundle');
-            test.done();
-        }
-    },
-    'when added with { variantGroup: true }': {
+            const newFile = proj.addResourceFile(
+                'Plugins/assets.bundle',
+                { plugin: true }
+            );
 
-        'should not add to the PBXResourcesBuildPhase and PBXBuildFile': function (test) {
-            var newFile = proj.addResourceFile('en.lproj/Localization.strings',
-                { variantGroup: true });
+            assert.equal(newFile.path, 'assets.bundle');
+        });
+    });
 
-            var sources = proj.pbxResourcesBuildPhaseObj();
-            test.equal(sources.files.length, 12);
+    //
+    // { variantGroup: true }
+    //
+    describe('when added with { variantGroup: true }', () => {
 
-            var buildFileSection = proj.pbxBuildFileSection();
-            test.ok(buildFileSection[newFile.uuid] === undefined);
+        it('should not add to the PBXResourcesBuildPhase and PBXBuildFile', () => {
+            const newFile = proj.addResourceFile(
+                'en.lproj/Localization.strings',
+                { variantGroup: true }
+            );
 
-            test.done();
-        },
+            const sources = proj.pbxResourcesBuildPhaseObj();
+            assert.equal(sources.files.length, 12);
 
-    },
-    'duplicate entries': {
-        'should return false': function (test) {
-            var newFile = proj.addResourceFile('Plugins/assets.bundle');
+            const buildFileSection = proj.pbxBuildFileSection();
+            assert.ok(buildFileSection[newFile.uuid] === undefined);
+        });
+    });
 
-            test.ok(!proj.addResourceFile('Plugins/assets.bundle'));
-            test.done();
-        },
-        'should return false (plugin entries)': function (test) {
-            var newFile = proj.addResourceFile('Plugins/assets.bundle',
-                                                { plugin: true });
+    //
+    // duplicate entries
+    //
+    describe('duplicate entries', () => {
 
-            test.ok(!proj.addResourceFile('Plugins/assets.bundle',
-                                                { plugin: true }));
-            test.done();
-        },
-        'should not add another entry anywhere': function (test) {
-            var newFile = proj.addResourceFile('Plugins/assets.bundle'),
-                buildFileSection = proj.pbxBuildFileSection(),
-                bfsLength = Object.keys(buildFileSection).length,
-                fileRefSection = proj.pbxFileReferenceSection(),
-                frsLength = Object.keys(fileRefSection).length,
-                resources = proj.pbxGroupByName('Resources'),
-                sources = proj.pbxResourcesBuildPhaseObj();
+        it('should return false', () => {
+            proj.addResourceFile('Plugins/assets.bundle');
+            assert.ok(!proj.addResourceFile('Plugins/assets.bundle'));
+        });
+
+        it('should return false (plugin entries)', () => {
+            proj.addResourceFile('Plugins/assets.bundle', { plugin: true });
+            assert.ok(!proj.addResourceFile('Plugins/assets.bundle', { plugin: true }));
+        });
+
+        it('should not add another entry anywhere', () => {
+            proj.addResourceFile('Plugins/assets.bundle');
+
+            const buildFileSection = proj.pbxBuildFileSection();
+            const bfsLength = Object.keys(buildFileSection).length;
+
+            const fileRefSection = proj.pbxFileReferenceSection();
+            const frsLength = Object.keys(fileRefSection).length;
+
+            const resources = proj.pbxGroupByName('Resources');
+            const sources = proj.pbxResourcesBuildPhaseObj();
 
             proj.addResourceFile('Plugins/assets.bundle');
 
-            // check lengths
-            test.equal(60, bfsLength);
-            test.equal(68, frsLength);
-            test.equal(resources.children.length, 10);
-            test.equal(sources.files.length, 13);
-            test.done();
-        }
-    },
-    tearDown: function (callback) {
+            assert.equal(60, bfsLength);
+            assert.equal(68, frsLength);
+            assert.equal(resources.children.length, 10);
+            assert.equal(sources.files.length, 13);
+        });
+    });
+
+    afterEach(() => {
         delete proj.pbxGroupByName('Resources').path;
-        callback();
-    }
-}
+    });
+});

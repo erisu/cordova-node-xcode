@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it, beforeEach } = require('node:test');
+const assert = require('node:assert');
+
 var xcode5proj = require('./fixtures/library-search-paths')
     xcode5projStr = JSON.stringify(xcode5proj),
     pbx = require('../lib/pbxProject'),
@@ -28,15 +31,14 @@ function cleanHash() {
     return JSON.parse(xcode5projStr);
 }
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
-
 var PRODUCT_NAME = '"$(TARGET_NAME)"';
 
-exports.addAndRemoveToFromLibrarySearchPaths = {
-    'add should add the path to each configuration section':function(test) {
+describe('addAndRemoveToFromLibrarySearchPaths', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
+
+    it('add should add the path to each configuration section', () => {
         var expected = '"\\"$(SRCROOT)/$(TARGET_NAME)/some/path\\""',
             config = proj.pbxXCBuildConfigurationSection(),
             ref, lib, refSettings;
@@ -53,12 +55,11 @@ exports.addAndRemoveToFromLibrarySearchPaths = {
                 continue;
 
             lib = refSettings.LIBRARY_SEARCH_PATHS;
-            test.equal(lib[1], expected);
+            assert.equal(lib[1], expected);
         }
-        test.done();
-    },
+    });
 
-    'remove should remove from the path to each configuration section':function(test) {
+    it('remove should remove from the path to each configuration section', () => {
         var config, ref, lib;
 
         proj.addToLibrarySearchPaths(libPoop);
@@ -69,9 +70,8 @@ exports.addAndRemoveToFromLibrarySearchPaths = {
             if (ref.indexOf('_comment') > -1 || config[ref].buildSettings.PRODUCT_NAME != PRODUCT_NAME) continue;
 
             lib = config[ref].buildSettings.LIBRARY_SEARCH_PATHS;
-            test.ok(lib.length === 1);
-            test.ok(lib[0].indexOf('$(SRCROOT)/KitchenSinktablet/some/path') == -1);
+            assert.ok(lib.length === 1);
+            assert.ok(lib[0].indexOf('$(SRCROOT)/KitchenSinktablet/some/path') == -1);
         }
-        test.done();
-    }
-}
+    });
+});

@@ -17,7 +17,10 @@
     under the License.
 */
 
-var fullProject = require('./fixtures/full-project')
+const { describe, it, beforeEach } = require('node:test');
+const assert = require('node:assert');
+
+var fullProject = require('./fixtures/full-project'),
     fullProjectStr = JSON.stringify(fullProject),
     pbx = require('../lib/pbxProject'),
     pbxFile = require('../lib/pbxFile'),
@@ -27,91 +30,82 @@ function cleanHash() {
     return JSON.parse(fullProjectStr);
 }
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
+describe('addHeaderFile', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
 
-exports.addHeaderFile = {
-    'should return a pbxFile': function (test) {
+    it('should return a pbxFile', () => {
         var newFile = proj.addHeaderFile('file.h');
+        assert.equal(newFile.constructor, pbxFile);
+    });
 
-        test.equal(newFile.constructor, pbxFile);
-        test.done()
-    },
-    'should set a fileRef on the pbxFile': function (test) {
+    it('should set a fileRef on the pbxFile', () => {
         var newFile = proj.addHeaderFile('file.h');
+        assert.ok(newFile.fileRef);
+    });
 
-        test.ok(newFile.fileRef);
-        test.done()
-    },
-    'should populate the PBXFileReference section with 2 fields': function (test) {
+    it('should populate the PBXFileReference section with 2 fields', () => {
         var newFile = proj.addHeaderFile('file.h'),
             fileRefSection = proj.pbxFileReferenceSection(),
             frsLength = Object.keys(fileRefSection).length;
 
-        test.equal(68, frsLength);
-        test.ok(fileRefSection[newFile.fileRef]);
-        test.ok(fileRefSection[newFile.fileRef + '_comment']);
+        assert.equal(68, frsLength);
+        assert.ok(fileRefSection[newFile.fileRef]);
+        assert.ok(fileRefSection[newFile.fileRef + '_comment']);
+    });
 
-        test.done();
-    },
-    'should populate the PBXFileReference comment correctly': function (test) {
+    it('should populate the PBXFileReference comment correctly', () => {
         var newFile = proj.addHeaderFile('file.h'),
             fileRefSection = proj.pbxFileReferenceSection(),
             commentKey = newFile.fileRef + '_comment';
 
-        test.equal(fileRefSection[commentKey], 'file.h');
-        test.done();
-    },
-    'should add the PBXFileReference object correctly': function (test) {
+        assert.equal(fileRefSection[commentKey], 'file.h');
+    });
+
+    it('should add the PBXFileReference object correctly', () => {
         var newFile = proj.addHeaderFile('Plugins/file.h'),
             fileRefSection = proj.pbxFileReferenceSection(),
             fileRefEntry = fileRefSection[newFile.fileRef];
 
-        test.equal(fileRefEntry.isa, 'PBXFileReference');
-        test.equal(fileRefEntry.fileEncoding, 4);
-        test.equal(fileRefEntry.lastKnownFileType, 'sourcecode.c.h');
-        test.equal(fileRefEntry.name, '"file.h"');
-        test.equal(fileRefEntry.path, '"file.h"');
-        test.equal(fileRefEntry.sourceTree, '"<group>"');
+        assert.equal(fileRefEntry.isa, 'PBXFileReference');
+        assert.equal(fileRefEntry.fileEncoding, 4);
+        assert.equal(fileRefEntry.lastKnownFileType, 'sourcecode.c.h');
+        assert.equal(fileRefEntry.name, '"file.h"');
+        assert.equal(fileRefEntry.path, '"file.h"');
+        assert.equal(fileRefEntry.sourceTree, '"<group>"');
+    });
 
-        test.done();
-    },
-    'should add to the Plugins PBXGroup group': function (test) {
+    it('should add to the Plugins PBXGroup group', () => {
         var newFile = proj.addHeaderFile('Plugins/file.h'),
             plugins = proj.pbxGroupByName('Plugins');
 
-        test.equal(plugins.children.length, 1);
-        test.done();
-    },
-    'should have the right values for the PBXGroup entry': function (test) {
+        assert.equal(plugins.children.length, 1);
+    });
+
+    it('should have the right values for the PBXGroup entry', () => {
         var newFile = proj.addHeaderFile('Plugins/file.h'),
             plugins = proj.pbxGroupByName('Plugins'),
             pluginObj = plugins.children[0];
 
-        test.equal(pluginObj.comment, 'file.h');
-        test.equal(pluginObj.value, newFile.fileRef);
-        test.done();
-    },
-    'duplicate entries': {
-        'should return false': function (test) {
-            var newFile = proj.addHeaderFile('Plugins/file.h');
+        assert.equal(pluginObj.comment, 'file.h');
+        assert.equal(pluginObj.value, newFile.fileRef);
+    });
 
-            test.ok(!proj.addHeaderFile('Plugins/file.h'));
-            test.done();
-        },
-        'should not add another entry anywhere': function (test) {
-            var newFile = proj.addHeaderFile('Plugins/file.h'),
-                fileRefSection = proj.pbxFileReferenceSection(),
-                frsLength = Object.keys(fileRefSection).length,
-                plugins = proj.pbxGroupByName('Plugins');
+    it('addHeaderFile duplicate entries: should return false', () => {
+        var newFile = proj.addHeaderFile('Plugins/file.h');
+        assert.ok(!proj.addHeaderFile('Plugins/file.h'));
+    });
 
-            proj.addHeaderFile('Plugins/file.h');
+    it('addHeaderFile duplicate entries: should not add another entry anywhere', () => {
+        var newFile = proj.addHeaderFile('Plugins/file.h'),
+            fileRefSection = proj.pbxFileReferenceSection(),
+            frsLength = Object.keys(fileRefSection).length,
+            plugins = proj.pbxGroupByName('Plugins');
 
-            test.equal(68, frsLength);
-            test.equal(plugins.children.length, 1);
-            test.done();
-        }
-    }
-}
+        proj.addHeaderFile('Plugins/file.h');
+
+        assert.equal(68, frsLength);
+        assert.equal(plugins.children.length, 1);
+    });
+});

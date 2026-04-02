@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+const assert = require('node:assert');
+
 var PEG = require('pegjs'),
     fs = require('fs'),
     pbx = fs.readFileSync('test/parser/projects/dots-in-names.pbxproj', 'utf-8'),
@@ -25,10 +28,11 @@ var PEG = require('pegjs'),
     rawProj = parser.parse(pbx),
     project = rawProj.project;
 
-exports['should parse com.apple.BackgroundModes'] = function (test) {
-    var targets = project.attributes.TargetAttributes['1D6058900D05DD3D006BFB54'],
-        backgroundModes = targets.SystemCapabilities['com.apple.BackgroundModes'];
+describe('parser/dotsInNames', () => {
+    it('should parse com.apple.BackgroundModes', () => {
+        const targets = project.attributes.TargetAttributes['1D6058900D05DD3D006BFB54'];
+        const backgroundModes = targets.SystemCapabilities['com.apple.BackgroundModes'];
 
-    test.deepEqual(backgroundModes, {enabled: 1});
-    test.done()
-}
+        assert.deepEqual(backgroundModes, { enabled: 1 });
+    });
+});

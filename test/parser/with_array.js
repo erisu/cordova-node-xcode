@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+const assert = require('assert');
+
 var PEG = require('pegjs'),
     fs = require('fs'),
     pbx = fs.readFileSync('test/parser/projects/with_array.pbxproj', 'utf-8'),
@@ -25,34 +28,31 @@ var PEG = require('pegjs'),
     rawProj = parser.parse(pbx),
     project = rawProj.project;
 
-exports['should parse arrays with commented entries'] = function (test) {
-    test.ok(project.files instanceof Array);
-    test.equal(project.files.length, 2);
-    test.done()
-}
+describe('parser/with_array', () => {
+    it('should parse arrays with commented entries', () => {
+        assert.ok(project.files instanceof Array);
+        assert.strictEqual(project.files.length, 2);
+    });
 
-exports['should parse arrays with uncommented entries'] = function (test) {
-    test.ok(project.ARCHS instanceof Array);
-    test.equal(project.ARCHS.length, 2);
-    test.done()
-}
+    it('should parse arrays with uncommented entries', () => {
+        assert.ok(project.ARCHS instanceof Array);
+        assert.strictEqual(project.ARCHS.length, 2);
+    });
 
-exports['should parse empty arrays'] = function (test) {
-    test.ok(project.empties instanceof Array);
-    test.equal(project.empties.length, 0);
-    test.done();
-}
+    it('should parse empty arrays', () => {
+        assert.ok(project.empties instanceof Array);
+        assert.strictEqual(project.empties.length, 0);
+    });
 
-exports['should be correct ordered'] = function (test) {
-    var archs = project.ARCHS;
-    test.equal(archs[0], 'armv6');
-    test.equal(archs[1], 'armv7');
-    test.done();
-}
+    it('should be correct ordered', () => {
+        const archs = project.ARCHS;
+        assert.strictEqual(archs[0], 'armv6');
+        assert.strictEqual(archs[1], 'armv7');
+    });
 
-exports['should parse values and comments correctly'] = function (test) {
-    var appDelegate = project.files[1]
-    test.equal(appDelegate.value, '1D3623260D0F684500981E51')
-    test.equal(appDelegate.comment, 'AppDelegate.m in Sources')
-    test.done()
-}
+    it('should parse values and comments correctly', () => {
+        const appDelegate = project.files[1];
+        assert.strictEqual(appDelegate.value, '1D3623260D0F684500981E51');
+        assert.strictEqual(appDelegate.comment, 'AppDelegate.m in Sources');
+    });
+});

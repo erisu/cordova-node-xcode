@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+const assert = require('assert');
+
 var PEG = require('pegjs'),
     fs = require('fs'),
     pbx = fs.readFileSync('test/parser/projects/header-search.pbxproj', 'utf-8'),
@@ -25,11 +28,12 @@ var PEG = require('pegjs'),
     rawProj = parser.parse(pbx),
     project = rawProj.project;
 
-exports['should read a decimal value correctly'] = function (test) {
-    var debug = project.objects['XCBuildConfiguration']['C01FCF4F08A954540054247B'],
-        hsPaths = debug.buildSettings['HEADER_SEARCH_PATHS'],
-        expected = '"\\"$(TARGET_BUILD_DIR)/usr/local/lib/include\\""';
+describe('parser/header-search', () => {
+    it('should read a decimal value correctly', () => {
+        const debug = project.objects['XCBuildConfiguration']['C01FCF4F08A954540054247B'];
+        const hsPaths = debug.buildSettings['HEADER_SEARCH_PATHS'];
+        const expected = '"\\"$(TARGET_BUILD_DIR)/usr/local/lib/include\\""';
 
-    test.equal(hsPaths[0], expected);
-    test.done();
-}
+        assert.strictEqual(hsPaths[0], expected);
+    });
+});

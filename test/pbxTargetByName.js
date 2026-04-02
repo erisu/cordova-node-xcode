@@ -16,8 +16,10 @@
     specific language governing permissions and limitations
     under the License.
 */
+const { describe, it, beforeEach, equals } = require('node:test');
+const assert = require('node:assert');
 
-var fullProject = require('./fixtures/full-project')
+var fullProject = require('./fixtures/full-project'),
     fullProjectStr = JSON.stringify(fullProject),
     pbx = require('../lib/pbxProject'),
     proj = new pbx('.');
@@ -26,23 +28,21 @@ function cleanHash() {
     return JSON.parse(fullProjectStr);
 }
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
+describe('pbxTargetByName', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
 
-exports.pbxTargetByName = {
-    'should return PBXNativeTarget': function (test) {
+    it('should return PBXNativeTarget', () => {
         var pbxTarget = proj.pbxTargetByName('KitchenSinktablet');
 
-        test.ok(pbxTarget);
-        test.equals(pbxTarget.isa, 'PBXNativeTarget');
-        test.done()
-    },
-    'should return null when PBXNativeTarget not found': function (test) {
+        assert.ok(pbxTarget);
+        assert.equal(pbxTarget.isa, 'PBXNativeTarget');
+    });
+
+    it('should return null when PBXNativeTarget not found', () => {
         var pbxTarget = proj.pbxTargetByName('Invalid');
 
-        test.equal(pbxTarget, null);
-        test.done()
-    }
-}
+        assert.equal(pbxTarget, null);
+    });
+});
