@@ -398,7 +398,6 @@ describe('group', () => {
             }
 
             var target;
-            var projectTargets = pbxProject.targets;
             for (var i = 0, j = pbxProject.targets.length; i < j; i++ ) {
                 target = pbxProject.targets[i].value;
             }
@@ -419,8 +418,7 @@ describe('group', () => {
                 }
             };
 
-            var output = project.writeSync();
-
+            project.writeSync();
         });
 
         it('should add target attribute to PBXProject TargetAttributes', () => {

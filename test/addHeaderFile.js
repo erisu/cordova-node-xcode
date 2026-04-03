@@ -77,7 +77,7 @@ describe('addHeaderFile', () => {
     });
 
     it('should add to the Plugins PBXGroup group', () => {
-        var newFile = proj.addHeaderFile('Plugins/file.h'),
+        proj.addHeaderFile('Plugins/file.h'),
             plugins = proj.pbxGroupByName('Plugins');
 
         assert.equal(plugins.children.length, 1);
@@ -93,13 +93,14 @@ describe('addHeaderFile', () => {
     });
 
     it('addHeaderFile duplicate entries: should return false', () => {
-        var newFile = proj.addHeaderFile('Plugins/file.h');
+        proj.addHeaderFile('Plugins/file.h');
         assert.ok(!proj.addHeaderFile('Plugins/file.h'));
     });
 
     it('addHeaderFile duplicate entries: should not add another entry anywhere', () => {
-        var newFile = proj.addHeaderFile('Plugins/file.h'),
-            fileRefSection = proj.pbxFileReferenceSection(),
+        proj.addHeaderFile('Plugins/file.h');
+
+        var fileRefSection = proj.pbxFileReferenceSection(),
             frsLength = Object.keys(fileRefSection).length,
             plugins = proj.pbxGroupByName('Plugins');
 

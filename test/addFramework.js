@@ -75,7 +75,7 @@ describe('addFramework', () => {
     });
 
     it('should populate the PBXFileReference section with 2 fields', () => {
-        var newFile = proj.addFramework('libsqlite3.dylib');
+        var newFile = proj.addFramework('libsqlite3.dylib'),
             fileRefSection = proj.pbxFileReferenceSection(),
             frsLength = Object.keys(fileRefSection).length;
 
@@ -86,7 +86,7 @@ describe('addFramework', () => {
     });
 
     it('should populate the PBXFileReference comment correctly', () => {
-        var newFile = proj.addFramework('libsqlite3.dylib');
+        var newFile = proj.addFramework('libsqlite3.dylib'),
             fileRefSection = proj.pbxFileReferenceSection(),
             commentKey = newFile.fileRef + '_comment';
 
@@ -150,9 +150,9 @@ describe('addFramework', () => {
     });
 
     it('should add to the Frameworks PBXGroup', () => {
-        var newLength = proj.pbxGroupByName('Frameworks').children.length + 1,
-            newFile = proj.addFramework('libsqlite3.dylib'),
-            frameworks = proj.pbxGroupByName('Frameworks');
+        var newLength = proj.pbxGroupByName('Frameworks').children.length + 1;
+        proj.addFramework('libsqlite3.dylib');
+        var frameworks = proj.pbxGroupByName('Frameworks');
 
         assert.equal(frameworks.children.length, newLength);
     });
@@ -167,15 +167,14 @@ describe('addFramework', () => {
     });
 
     it('should add to the PBXFrameworksBuildPhase', () => {
-        var newFile = proj.addFramework('libsqlite3.dylib'),
-            frameworks = proj.pbxFrameworksBuildPhaseObj();
-
+        proj.addFramework('libsqlite3.dylib');
+        var frameworks = proj.pbxFrameworksBuildPhaseObj();
         assert.equal(frameworks.files.length, 16);
     });
 
     it('should not add to the PBXFrameworksBuildPhase', () => {
-        var newFile = proj.addFramework('Private.framework', {link: false}),
-            frameworks = proj.pbxFrameworksBuildPhaseObj();
+        proj.addFramework('Private.framework', {link: false});
+        var frameworks = proj.pbxFrameworksBuildPhaseObj();
 
         assert.equal(frameworks.files.length, 15);
     });
@@ -190,7 +189,7 @@ describe('addFramework', () => {
     });
 
     it('should return false', () => {
-        var newFile = proj.addFramework('libsqlite3.dylib');
+        proj.addFramework('libsqlite3.dylib');
         assert.ok(!proj.addFramework('libsqlite3.dylib'));
     });
 
@@ -219,9 +218,8 @@ describe('addFramework', () => {
     });
 
     it('should add to the Embed Frameworks PBXCopyFilesBuildPhase', () => {
-        var newFile = proj.addFramework('/path/to/SomeEmbeddableCustom.framework', {customFramework: true, embed: true}),
-            frameworks = proj.pbxEmbedFrameworksBuildPhaseObj();
-
+        proj.addFramework('/path/to/SomeEmbeddableCustom.framework', {customFramework: true, embed: true});
+        var frameworks = proj.pbxEmbedFrameworksBuildPhaseObj();
         var buildPhaseInPbx = proj.pbxEmbedFrameworksBuildPhaseObj();
         assert.equal(buildPhaseInPbx.dstSubfolderSpec, 10);
 
@@ -229,9 +227,8 @@ describe('addFramework', () => {
     });
 
     it('should not add to the Embed Frameworks PBXCopyFilesBuildPhase by default', () => {
-        var newFile = proj.addFramework('/path/to/Custom.framework', {customFramework: true}),
-            frameworks = proj.pbxEmbedFrameworksBuildPhaseObj();
-
+        proj.addFramework('/path/to/Custom.framework', {customFramework: true});
+        var frameworks = proj.pbxEmbedFrameworksBuildPhaseObj();
         assert.equal(frameworks.files.length, 0);
     });
 

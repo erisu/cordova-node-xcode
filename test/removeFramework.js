@@ -65,26 +65,22 @@ describe('removeFramework', () => {
 
     it('should return a pbxFile', () => {
         var newFile = proj.addFramework('libsqlite3.dylib');
-
         assert.equal(newFile.constructor, pbxFile);
 
         var deletedFile = proj.removeFramework('libsqlite3.dylib');
-
         assert.equal(deletedFile.constructor, pbxFile);
     });
 
     it('should set a fileRef on the pbxFile', () => {
         var newFile = proj.addFramework('libsqlite3.dylib');
-
         assert.ok(newFile.fileRef);
 
         var deletedFile = proj.removeFramework('libsqlite3.dylib');
-
         assert.ok(deletedFile.fileRef);
     });
 
     it('should remove 2 fields from the PBXFileReference section', () => {
-        var newFile = proj.addFramework('libsqlite3.dylib');
+        var newFile = proj.addFramework('libsqlite3.dylib'),
             fileRefSection = proj.pbxFileReferenceSection(),
             frsLength = Object.keys(fileRefSection).length;
 
@@ -110,7 +106,6 @@ describe('removeFramework', () => {
         assert.ok(buildFileSection[newFile.uuid + '_comment']);
 
         var deletedFile = proj.removeFramework('libsqlite3.dylib');
-
         bfsLength = Object.keys(buildFileSection).length;
 
         assert.equal(58, bfsLength);
@@ -119,42 +114,42 @@ describe('removeFramework', () => {
     });
 
     it('should remove from the Frameworks PBXGroup', () => {
-        var newLength = proj.pbxGroupByName('Frameworks').children.length + 1,
-            newFile = proj.addFramework('libsqlite3.dylib'),
-            frameworks = proj.pbxGroupByName('Frameworks');
+        var newLength = proj.pbxGroupByName('Frameworks').children.length + 1;
+        proj.addFramework('libsqlite3.dylib');
 
+        var frameworks = proj.pbxGroupByName('Frameworks');
         assert.equal(frameworks.children.length, newLength);
 
-        var deletedFile = proj.removeFramework('libsqlite3.dylib'),
+        proj.removeFramework('libsqlite3.dylib'),
         newLength = newLength - 1;
 
         assert.equal(frameworks.children.length, newLength);
     });
 
     it('should remove from the PBXFrameworksBuildPhase', () => {
-        var newFile = proj.addFramework('libsqlite3.dylib'),
-            frameworks = proj.pbxFrameworksBuildPhaseObj();
+        proj.addFramework('libsqlite3.dylib');
 
+        var frameworks = proj.pbxFrameworksBuildPhaseObj();
         assert.equal(frameworks.files.length, 16);
 
-        var deletedFile = proj.removeFramework('libsqlite3.dylib'),
-            frameworks = proj.pbxFrameworksBuildPhaseObj();
+        proj.removeFramework('libsqlite3.dylib');
 
+        frameworks = proj.pbxFrameworksBuildPhaseObj();
         assert.equal(frameworks.files.length, 15);
     });
 
     it('should remove custom frameworks', () => {
-        var newFile = proj.addFramework('/path/to/Custom.framework', { customFramework: true }),
-            frameworks = proj.pbxFrameworksBuildPhaseObj();
+        proj.addFramework('/path/to/Custom.framework', { customFramework: true });
 
+        var frameworks = proj.pbxFrameworksBuildPhaseObj();
         assert.equal(frameworks.files.length, 16);
 
-        var deletedFile = proj.removeFramework('/path/to/Custom.framework', { customFramework: true }),
-            frameworks = proj.pbxFrameworksBuildPhaseObj();
+        proj.removeFramework('/path/to/Custom.framework', { customFramework: true });
 
+        frameworks = proj.pbxFrameworksBuildPhaseObj();
         assert.equal(frameworks.files.length, 15);
 
-        var frameworkPaths = frameworkSearchPaths(proj);
+        var frameworkPaths = frameworkSearchPaths(proj),
             expectedPath = '"/path/to"';
 
         for (i = 0; i < frameworkPaths.length; i++) {
@@ -165,16 +160,18 @@ describe('removeFramework', () => {
     });
 
     it('should remove embedded frameworks', () => {
-        var newFile = proj.addFramework('/path/to/Custom.framework', { customFramework: true, embed:true, sign:true }),
-            frameworks = proj.pbxFrameworksBuildPhaseObj(),
+        proj.addFramework('/path/to/Custom.framework', { customFramework: true, embed:true, sign:true });
+
+        var frameworks = proj.pbxFrameworksBuildPhaseObj(),
             buildFileSection = proj.pbxBuildFileSection(),
             bfsLength = Object.keys(buildFileSection).length;
 
         assert.equal(frameworks.files.length, 16);
         assert.equal(62, bfsLength);
 
-        var deletedFile = proj.removeFramework('/path/to/Custom.framework', { customFramework: true, embed:true }),
-            frameworks = proj.pbxFrameworksBuildPhaseObj(),
+        proj.removeFramework('/path/to/Custom.framework', { customFramework: true, embed:true });
+
+        frameworks = proj.pbxFrameworksBuildPhaseObj(),
             buildFileSection = proj.pbxBuildFileSection(),
             bfsLength = Object.keys(buildFileSection).length;
 

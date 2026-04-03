@@ -16,7 +16,8 @@
     specific language governing permissions and limitations
     under the License.
 */
-const { describe, it, beforeEach, equals } = require('node:test');
+
+const { describe, it, beforeEach } = require('node:test');
 const assert = require('node:assert');
 
 var fullProject = require('./fixtures/full-project'),

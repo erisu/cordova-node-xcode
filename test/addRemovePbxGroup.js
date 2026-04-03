@@ -54,7 +54,7 @@ describe('addRemovePbxGroup', () => {
 
     it('should add the PBXGroup object correctly', () => {
         var pbxGroup = proj.addPbxGroup(['file.m'], 'MyGroup', 'Application', '"<group>"');
-        pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
+        var pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
 
         assert.equal(pbxGroupInPbx.children, pbxGroup.pbxGroup.children);
         assert.equal(pbxGroupInPbx.isa, 'PBXGroup');
@@ -63,8 +63,9 @@ describe('addRemovePbxGroup', () => {
     });
 
     it('should add <group> sourceTree if no other specified', () => {
-        var pbxGroup = proj.addPbxGroup(['file.m'], 'MyGroup', 'Application');
-        pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
+        proj.addPbxGroup(['file.m'], 'MyGroup', 'Application');
+
+        var pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
 
         assert.equal(pbxGroupInPbx.sourceTree, '"<group>"');
     });

@@ -109,7 +109,8 @@ describe('addSourceFile', () => {
   });
 
   it('should add to the Plugins PBXGroup group', () => {
-    const newFile = proj.addSourceFile('Plugins/file.m');
+    proj.addSourceFile('Plugins/file.m');
+
     const plugins = proj.pbxGroupByName('Plugins');
     assert.strictEqual(plugins.children.length, 1);
   });
@@ -124,7 +125,8 @@ describe('addSourceFile', () => {
   });
 
   it('should add to the PBXSourcesBuildPhase', () => {
-    const newFile = proj.addSourceFile('Plugins/file.m');
+    proj.addSourceFile('Plugins/file.m');
+
     const sources = proj.pbxSourcesBuildPhaseObj();
     assert.strictEqual(sources.files.length, 3);
   });

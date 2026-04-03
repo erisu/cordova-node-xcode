@@ -64,7 +64,7 @@ describe('addWatchExtension', () => {
             sourcePhase = proj.addBuildPhase([], 'PBXSourcesBuildPhase', 'Sources', target.uuid),
             resourceFile = proj.addResourceFile('assets.bundle', options),
             resourcePhase = proj.addBuildPhase([], 'PBXResourcesBuildPhase', 'Resources', target.uuid),
-            frameworkFile = proj.addFramework('libsqlite3.dylib', options);
+            frameworkFile = proj.addFramework('libsqlite3.dylib', options),
             frameworkPhase = proj.addBuildPhase([], 'PBXFrameworkBuildPhase', 'Frameworks', target.uuid),
             headerFile = proj.addHeaderFile('file.h', options);
 
