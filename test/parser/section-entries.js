@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+const assert = require('assert');
+
 var PEG = require('pegjs'),
     fs = require('fs'),
     pbx = fs.readFileSync('test/parser/projects/section-entries.pbxproj', 'utf-8'),
@@ -25,20 +28,19 @@ var PEG = require('pegjs'),
     rawProj = parser.parse(pbx),
     project = rawProj.project;
 
-exports['should have a PBXVariantGroup section'] = function (test) {
-    test.ok(project.objects['PBXVariantGroup']);
-    test.done();
-}
+describe('parser/section-entries', () => {
+    it('should have a PBXVariantGroup section', () => {
+        assert.ok(project.objects['PBXVariantGroup']);
+    });
 
-exports['should have two children for PBXVariantGroup'] = function (test) {
-    test.ok(project.objects['PBXVariantGroup']['1F766FDF13BBADB100FB74C0']);
-    test.ok(project.objects['PBXVariantGroup']['1F766FDC13BBADB100FB74C0']);
-    test.done();
-}
+    it('should have two children for PBXVariantGroup', () => {
+        const variantGroup = project.objects['PBXVariantGroup'];
+        assert.ok(variantGroup['1F766FDF13BBADB100FB74C0']);
+        assert.ok(variantGroup['1F766FDC13BBADB100FB74C0']);
+    });
 
-exports['should store quote-surround values correctly'] = function (test) {
-    var localizable = project.objects['PBXVariantGroup']['1F766FDF13BBADB100FB74C0'];
-
-    test.equal(localizable.sourceTree, '"<group>"');
-    test.done();
-}
+    it('should store quote-surround values correctly', () => {
+        const localizable = project.objects['PBXVariantGroup']['1F766FDF13BBADB100FB74C0'];
+        assert.strictEqual(localizable.sourceTree, '"<group>"');
+    });
+});

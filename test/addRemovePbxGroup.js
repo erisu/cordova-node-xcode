@@ -17,7 +17,10 @@
     under the License.
 */
 
-var fullProject = require('./fixtures/full-project')
+const { describe, it, beforeEach } = require('node:test');
+const assert = require('node:assert');
+
+var fullProject = require('./fixtures/full-project'),
     fullProjectStr = JSON.stringify(fullProject),
     pbx = require('../lib/pbxProject'),
     proj = new pbx('.');
@@ -26,146 +29,140 @@ function cleanHash() {
     return JSON.parse(fullProjectStr);
 }
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
+describe('addRemovePbxGroup', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
 
-exports.addRemovePbxGroup = {
-    'should return a pbxGroup': function (test) {
+    it('should return a pbxGroup', () => {
         var pbxGroup = proj.addPbxGroup(['file.m'], 'MyGroup', 'Application', 'Application', '"<group>"');
+        assert.ok(typeof pbxGroup === 'object');
+    });
 
-        test.ok(typeof pbxGroup === 'object');
-        test.done()
-    },
-    'should set a uuid on the pbxGroup': function (test) {
+    it('should set a uuid on the pbxGroup', () => {
         var pbxGroup = proj.addPbxGroup(['file.m'], 'MyGroup', 'Application', 'Application', '"<group>"');
+        assert.ok(pbxGroup.uuid);
+    });
 
-        test.ok(pbxGroup.uuid);
-        test.done()
-    },
-    'should add all files to pbxGroup': function (test) {
+    it('should add all files to pbxGroup', () => {
         var pbxGroup = proj.addPbxGroup(['file.m'], 'MyGroup', 'Application', 'Application', '"<group>"');
         for (var index = 0; index < pbxGroup.pbxGroup.children.length; index++) {
             var file = pbxGroup.pbxGroup.children[index];
-            test.ok(file.value);
+            assert.ok(file.value);
         }
+    });
 
-        test.done()
-    },
-    'should add the PBXGroup object correctly': function (test) {
+    it('should add the PBXGroup object correctly', () => {
         var pbxGroup = proj.addPbxGroup(['file.m'], 'MyGroup', 'Application', '"<group>"');
-            pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
+        var pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
 
-        test.equal(pbxGroupInPbx.children, pbxGroup.pbxGroup.children);
-        test.equal(pbxGroupInPbx.isa, 'PBXGroup');
-        test.equal(pbxGroupInPbx.path, 'Application');
-        test.equal(pbxGroupInPbx.sourceTree, '"<group>"');
-        test.done();
-    },
-    'should add <group> sourceTree if no other specified': function (test) {
-        var pbxGroup = proj.addPbxGroup(['file.m'], 'MyGroup', 'Application');
-            pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
+        assert.equal(pbxGroupInPbx.children, pbxGroup.pbxGroup.children);
+        assert.equal(pbxGroupInPbx.isa, 'PBXGroup');
+        assert.equal(pbxGroupInPbx.path, 'Application');
+        assert.equal(pbxGroupInPbx.sourceTree, '"<group>"');
+    });
 
-        test.equal(pbxGroupInPbx.sourceTree, '"<group>"');
-        test.done();
-    },
-    'should add each of the files to PBXBuildFile section': function (test) {
+    it('should add <group> sourceTree if no other specified', () => {
+        proj.addPbxGroup(['file.m'], 'MyGroup', 'Application');
+
+        var pbxGroupInPbx = proj.pbxGroupByName('MyGroup');
+
+        assert.equal(pbxGroupInPbx.sourceTree, '"<group>"');
+    });
+
+    it('should add each of the files to PBXBuildFile section', () => {
         var buildFileSection = proj.pbxBuildFileSection();
         for (var key in buildFileSection) {
-            test.notEqual(buildFileSection[key].fileRef_comment, 'file.m');
-            test.notEqual(buildFileSection[key].fileRef_comment, 'assets.bundle');
+            assert.notEqual(buildFileSection[key].fileRef_comment, 'file.m');
+            assert.notEqual(buildFileSection[key].fileRef_comment, 'assets.bundle');
         }
 
         var initialBuildFileSectionItemsCount = Object.keys(buildFileSection),
             pbxGroup = proj.addPbxGroup(['file.m', 'assets.bundle'], 'MyGroup', 'Application', '"<group>"'),
             afterAdditionBuildFileSectionItemsCount = Object.keys(buildFileSection);
 
-        // for each file added in the build file section two keyes are added - one for the object and one for the comment
-        test.equal(initialBuildFileSectionItemsCount.length, afterAdditionBuildFileSectionItemsCount.length - 4);
-        test.done();
-    },
-    'should not add any of the files to PBXBuildFile section if already added': function (test) {
+        assert.equal(initialBuildFileSectionItemsCount.length, afterAdditionBuildFileSectionItemsCount.length - 4);
+    });
+
+    it('should not add any of the files to PBXBuildFile section if already added', () => {
         var buildFileSection = proj.pbxBuildFileSection(),
             initialBuildFileSectionItemsCount = Object.keys(buildFileSection),
             pbxGroup = proj.addPbxGroup(['AppDelegate.m', 'AppDelegate.h'], 'MyGroup', 'Application', '"<group>"'),
             afterAdditionBuildFileSectionItemsCount = Object.keys(buildFileSection);
 
-        test.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
-        test.done();
-    },
-    'should not add any of the files to PBXBuildFile section when they contain special symbols and are already added': function (test) {
+        assert.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
+    });
+
+    it('should not add any of the files to PBXBuildFile section when they contain special symbols and are already added', () => {
         var buildFileSection = proj.pbxBuildFileSection(),
             initialBuildFileSectionItemsCount = Object.keys(buildFileSection),
             pbxGroup = proj.addPbxGroup(['KitchenSinktablet.app'], 'MyGroup', 'Application', '"<group>"'),
             afterAdditionBuildFileSectionItemsCount = Object.keys(buildFileSection);
 
-        test.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
-        test.done();
-    },
-    'should add all files which are not added and not add files already added to PBXBuildFile section': function (test) {
+        assert.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
+    });
+
+    it('should add all files which are not added and not add files already added to PBXBuildFile section', () => {
         var buildFileSection = proj.pbxBuildFileSection();
         for (var key in buildFileSection) {
-            test.notEqual(buildFileSection[key].fileRef_comment, 'file.m');
-            test.notEqual(buildFileSection[key].fileRef_comment, 'assets.bundle');
+            assert.notEqual(buildFileSection[key].fileRef_comment, 'file.m');
+            assert.notEqual(buildFileSection[key].fileRef_comment, 'assets.bundle');
         }
 
         var initialBuildFileSectionItemsCount = Object.keys(buildFileSection),
             pbxGroup = proj.addPbxGroup(['AppDelegate.m', 'AppDelegate.h', 'file.m', 'assets.bundle'], 'MyGroup', 'Application', '"<group>"'),
             afterAdditionBuildFileSectionItemsCount = Object.keys(buildFileSection);
 
-        // for each file added in the build file section two keyes are added - one for the object and one for the comment
-        test.equal(initialBuildFileSectionItemsCount.length, afterAdditionBuildFileSectionItemsCount.length - 4);
-        test.done();
-    },
-    'should add each of the files to PBXFileReference section': function (test) {
+        assert.equal(initialBuildFileSectionItemsCount.length, afterAdditionBuildFileSectionItemsCount.length - 4);
+    });
+
+    it('should add each of the files to PBXFileReference section', () => {
         var fileReference = proj.pbxFileReferenceSection();
         for (var key in fileReference) {
-            test.notEqual(fileReference[key].fileRef_comment, 'file.m');
-            test.notEqual(fileReference[key].fileRef_comment, 'assets.bundle');
+            assert.notEqual(fileReference[key].fileRef_comment, 'file.m');
+            assert.notEqual(fileReference[key].fileRef_comment, 'assets.bundle');
         }
+
         var pbxGroup = proj.addPbxGroup(['file.m', 'assets.bundle'], 'MyGroup', 'Application', '"<group>"');
         for (var index = 0; index < pbxGroup.pbxGroup.children.length; index++) {
             var file = pbxGroup.pbxGroup.children[index];
-            test.ok(fileReference[file.value]);
+            assert.ok(fileReference[file.value]);
         }
+    });
 
-        test.done();
-    },
-    'should not add any of the files to PBXFileReference section if already added': function (test) {
-        var fileReference = proj.pbxFileReferenceSection (),
+    it('should not add any of the files to PBXFileReference section if already added', () => {
+        var fileReference = proj.pbxFileReferenceSection(),
             initialBuildFileSectionItemsCount = Object.keys(fileReference),
             pbxGroup = proj.addPbxGroup(['AppDelegate.m', 'AppDelegate.h'], 'MyGroup', 'Application', '"<group>"'),
             afterAdditionBuildFileSectionItemsCount = Object.keys(fileReference);
 
-        test.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
-        test.done();
-    },
-    'should not add any of the files to PBXFileReference section when they contain special symbols and are already added': function (test) {
-        var fileReference = proj.pbxFileReferenceSection (),
+        assert.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
+    });
+
+    it('should not add any of the files to PBXFileReference section when they contain special symbols and are already added', () => {
+        var fileReference = proj.pbxFileReferenceSection(),
             initialBuildFileSectionItemsCount = Object.keys(fileReference),
             pbxGroup = proj.addPbxGroup(['KitchenSinktablet.app'], 'MyGroup', 'Application', '"<group>"'),
             afterAdditionBuildFileSectionItemsCount = Object.keys(fileReference);
 
-        test.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
-        test.done();
-    },
-    'should add all files which are not added and not add files already added to PBXFileReference section': function (test) {
-        var fileReference = proj.pbxFileReferenceSection ();
+        assert.deepEqual(initialBuildFileSectionItemsCount, afterAdditionBuildFileSectionItemsCount);
+    });
+
+    it('should add all files which are not added and not add files already added to PBXFileReference section', () => {
+        var fileReference = proj.pbxFileReferenceSection();
         for (var key in fileReference) {
-            test.notEqual(fileReference[key].fileRef_comment, 'file.m');
-            test.notEqual(fileReference[key].fileRef_comment, 'assets.bundle');
+            assert.notEqual(fileReference[key].fileRef_comment, 'file.m');
+            assert.notEqual(fileReference[key].fileRef_comment, 'assets.bundle');
         }
 
         var initialBuildFileSectionItemsCount = Object.keys(fileReference),
             pbxGroup = proj.addPbxGroup(['AppDelegate.m', 'AppDelegate.h', 'file.m', 'assets.bundle'], 'MyGroup', 'Application', '"<group>"'),
             afterAdditionBuildFileSectionItemsCount = Object.keys(fileReference);
 
-        // for each file added in the file reference section two keyes are added - one for the object and one for the comment
-        test.equal(initialBuildFileSectionItemsCount.length, afterAdditionBuildFileSectionItemsCount.length - 4);
-        test.done();
-    },
-    'should remove a pbxGroup': function (test) {
+        assert.equal(initialBuildFileSectionItemsCount.length, afterAdditionBuildFileSectionItemsCount.length - 4);
+    });
+
+    it('should remove a pbxGroup', () => {
         var groupName = 'MyGroup';
         proj.addPbxGroup(['file.m'], groupName, 'Application', 'Application', '"<group>"');
         proj.removePbxGroup(groupName);
@@ -173,7 +170,6 @@ exports.addRemovePbxGroup = {
         var pbxGroupInPbx = proj.pbxGroupByName(groupName);
         console.log(pbxGroupInPbx);
 
-        test.ok(!pbxGroupInPbx);
-        test.done()
-    }
-}
+        assert.ok(!pbxGroupInPbx);
+    });
+});

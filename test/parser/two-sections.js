@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+const assert = require('assert');
+
 var PEG = require('pegjs'),
     fs = require('fs'),
     pbx = fs.readFileSync('test/parser/projects/two-sections.pbxproj', 'utf-8'),
@@ -25,13 +28,13 @@ var PEG = require('pegjs'),
     rawProj = parser.parse(pbx),
     project = rawProj.project;
 
-exports['should parse a project with two sections'] = function (test) {
-    // if it gets this far it's worked
-    test.done();
-}
+describe('parser/two-sections', () => {
+    it('should parse a project with two sections', () => {
+        // if it gets this far it's worked
+    });
 
-exports['should have both sections on the project object'] = function (test) {
-    test.ok(project.objects['PBXTargetDependency']);
-    test.ok(project.objects['PBXSourcesBuildPhase']);
-    test.done();
-}
+    it('should have both sections on the project object', () => {
+        assert.ok(project.objects['PBXTargetDependency']);
+        assert.ok(project.objects['PBXSourcesBuildPhase']);
+    });
+});

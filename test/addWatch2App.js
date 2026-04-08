@@ -16,8 +16,10 @@
     specific language governing permissions and limitations
     under the License.
 */
+const { describe, it, beforeEach } = require('node:test');
+const assert = require('node:assert');
 
-var fullProject = require('./fixtures/full-project')
+var fullProject = require('./fixtures/full-project'),
     fullProjectStr = JSON.stringify(fullProject),
     pbx = require('../lib/pbxProject'),
     pbxFile = require('../lib/pbxFile'),
@@ -31,53 +33,52 @@ var TARGET_NAME = 'TestWatchApp',
     TARGET_TYPE = 'watch2_app',
     TARGET_SUBFOLDER_NAME = 'TestWatchAppFiles';
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
 
-exports.addWatchApp = {
-    'should create a new watch2 app target with the correct product type': function (test) {
+describe('addWatchApp', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
+    it('should create a new watch2 app target with the correct product type', () => {
         var target = proj.addTarget(TARGET_NAME, TARGET_TYPE, TARGET_SUBFOLDER_NAME);
 
-        test.ok(typeof target == 'object');
-        test.ok(target.uuid);
-        test.ok(target.pbxNativeTarget);
-        test.ok(target.pbxNativeTarget.isa);
-        test.ok(target.pbxNativeTarget.name);
-        test.ok(target.pbxNativeTarget.productName);
-        test.ok(target.pbxNativeTarget.productReference);
-        test.ok(target.pbxNativeTarget.productType);
-        test.ok(target.pbxNativeTarget.buildConfigurationList);
-        test.ok(target.pbxNativeTarget.buildPhases);
-        test.ok(target.pbxNativeTarget.buildRules);
-        test.ok(target.pbxNativeTarget.dependencies);
+        assert.ok(typeof target == 'object');
+        assert.ok(target.uuid);
+        assert.ok(target.pbxNativeTarget);
+        assert.ok(target.pbxNativeTarget.isa);
+        assert.ok(target.pbxNativeTarget.name);
+        assert.ok(target.pbxNativeTarget.productName);
+        assert.ok(target.pbxNativeTarget.productReference);
+        assert.ok(target.pbxNativeTarget.productType);
+        assert.ok(target.pbxNativeTarget.buildConfigurationList);
+        assert.ok(target.pbxNativeTarget.buildPhases);
+        assert.ok(target.pbxNativeTarget.buildRules);
+        assert.ok(target.pbxNativeTarget.dependencies);
 
-        test.equal(target.pbxNativeTarget.productType, '"com.apple.product-type.application.watchapp2"');
+        assert.equal(target.pbxNativeTarget.productType, '"com.apple.product-type.application.watchapp2"');
 
-        test.done();
-    },
-    'should create a new watch2 app target with the correct product type, without needing a subfolder name': function (test) {
+    });
+
+    it('should create a new watch2 app target with the correct product type, without needing a subfolder name', () => {
         var target = proj.addTarget(TARGET_NAME, TARGET_TYPE);
 
-        test.ok(typeof target == 'object');
-        test.ok(target.uuid);
-        test.ok(target.pbxNativeTarget);
-        test.ok(target.pbxNativeTarget.isa);
-        test.ok(target.pbxNativeTarget.name);
-        test.ok(target.pbxNativeTarget.productName);
-        test.ok(target.pbxNativeTarget.productReference);
-        test.ok(target.pbxNativeTarget.productType);
-        test.ok(target.pbxNativeTarget.buildConfigurationList);
-        test.ok(target.pbxNativeTarget.buildPhases);
-        test.ok(target.pbxNativeTarget.buildRules);
-        test.ok(target.pbxNativeTarget.dependencies);
+        assert.ok(typeof target == 'object');
+        assert.ok(target.uuid);
+        assert.ok(target.pbxNativeTarget);
+        assert.ok(target.pbxNativeTarget.isa);
+        assert.ok(target.pbxNativeTarget.name);
+        assert.ok(target.pbxNativeTarget.productName);
+        assert.ok(target.pbxNativeTarget.productReference);
+        assert.ok(target.pbxNativeTarget.productType);
+        assert.ok(target.pbxNativeTarget.buildConfigurationList);
+        assert.ok(target.pbxNativeTarget.buildPhases);
+        assert.ok(target.pbxNativeTarget.buildRules);
+        assert.ok(target.pbxNativeTarget.dependencies);
 
-        test.equal(target.pbxNativeTarget.productType, '"com.apple.product-type.application.watchapp2"');
+        assert.equal(target.pbxNativeTarget.productType, '"com.apple.product-type.application.watchapp2"');
 
-        test.done();
-    },
-    'should create a new watch2 app target and add source, framework, resource and header files and the corresponding build phases': function (test) {
+    });
+
+    it('should create a new watch2 app target and add source, framework, resource and header files and the corresponding build phases', () => {
         var target = proj.addTarget(TARGET_NAME, TARGET_TYPE, TARGET_SUBFOLDER_NAME),
             options = { 'target' : target.uuid };
 
@@ -85,83 +86,82 @@ exports.addWatchApp = {
             sourcePhase = proj.addBuildPhase([], 'PBXSourcesBuildPhase', 'Sources', target.uuid),
             resourceFile = proj.addResourceFile('assets.bundle', options),
             resourcePhase = proj.addBuildPhase([], 'PBXResourcesBuildPhase', 'Resources', target.uuid),
-            frameworkFile = proj.addFramework('libsqlite3.dylib', options);
+            frameworkFile = proj.addFramework('libsqlite3.dylib', options),
             frameworkPhase = proj.addBuildPhase([], 'PBXFrameworkBuildPhase', 'Frameworks', target.uuid),
             headerFile = proj.addHeaderFile('file.h', options);
 
-        test.ok(sourcePhase);
-        test.ok(resourcePhase);
-        test.ok(frameworkPhase);
+        assert.ok(sourcePhase);
+        assert.ok(resourcePhase);
+        assert.ok(frameworkPhase);
 
-        test.equal(sourceFile.constructor, pbxFile);
-        test.equal(resourceFile.constructor, pbxFile);
-        test.equal(frameworkFile.constructor, pbxFile);
-        test.equal(headerFile.constructor, pbxFile);
+        assert.equal(sourceFile.constructor, pbxFile);
+        assert.equal(resourceFile.constructor, pbxFile);
+        assert.equal(frameworkFile.constructor, pbxFile);
+        assert.equal(headerFile.constructor, pbxFile);
 
-        test.ok(typeof target == 'object');
-        test.ok(target.uuid);
-        test.ok(target.pbxNativeTarget);
-        test.ok(target.pbxNativeTarget.isa);
-        test.ok(target.pbxNativeTarget.name);
-        test.ok(target.pbxNativeTarget.productName);
-        test.ok(target.pbxNativeTarget.productReference);
-        test.ok(target.pbxNativeTarget.productType);
-        test.ok(target.pbxNativeTarget.buildConfigurationList);
-        test.ok(target.pbxNativeTarget.buildPhases);
-        test.ok(target.pbxNativeTarget.buildRules);
-        test.ok(target.pbxNativeTarget.dependencies);
+        assert.ok(typeof target == 'object');
+        assert.ok(target.uuid);
+        assert.ok(target.pbxNativeTarget);
+        assert.ok(target.pbxNativeTarget.isa);
+        assert.ok(target.pbxNativeTarget.name);
+        assert.ok(target.pbxNativeTarget.productName);
+        assert.ok(target.pbxNativeTarget.productReference);
+        assert.ok(target.pbxNativeTarget.productType);
+        assert.ok(target.pbxNativeTarget.buildConfigurationList);
+        assert.ok(target.pbxNativeTarget.buildPhases);
+        assert.ok(target.pbxNativeTarget.buildRules);
+        assert.ok(target.pbxNativeTarget.dependencies);
 
-        test.done();
-    },
-    'should create a new watch2 app target and add watch build phase': function (test) {
+    });
+
+    it('should create a new watch2 app target and add watch build phase', () => {
         var target = proj.addTarget(TARGET_NAME, TARGET_TYPE);
 
-        test.ok(typeof target == 'object');
-        test.ok(target.uuid);
-        test.ok(target.pbxNativeTarget);
-        test.ok(target.pbxNativeTarget.isa);
-        test.ok(target.pbxNativeTarget.name);
-        test.ok(target.pbxNativeTarget.productName);
-        test.ok(target.pbxNativeTarget.productReference);
-        test.ok(target.pbxNativeTarget.productType);
-        test.ok(target.pbxNativeTarget.buildConfigurationList);
-        test.ok(target.pbxNativeTarget.buildPhases);
-        test.ok(target.pbxNativeTarget.buildRules);
-        test.ok(target.pbxNativeTarget.dependencies);
+        assert.ok(typeof target == 'object');
+        assert.ok(target.uuid);
+        assert.ok(target.pbxNativeTarget);
+        assert.ok(target.pbxNativeTarget.isa);
+        assert.ok(target.pbxNativeTarget.name);
+        assert.ok(target.pbxNativeTarget.productName);
+        assert.ok(target.pbxNativeTarget.productReference);
+        assert.ok(target.pbxNativeTarget.productType);
+        assert.ok(target.pbxNativeTarget.buildConfigurationList);
+        assert.ok(target.pbxNativeTarget.buildPhases);
+        assert.ok(target.pbxNativeTarget.buildRules);
+        assert.ok(target.pbxNativeTarget.dependencies);
 
-        test.equal(target.pbxNativeTarget.productType, '"com.apple.product-type.application.watchapp2"');
+        assert.equal(target.pbxNativeTarget.productType, '"com.apple.product-type.application.watchapp2"');
 
         var buildPhase = proj.buildPhaseObject('PBXCopyFilesBuildPhase', 'Embed Watch Content', target.uuid);
 
-        test.ok(buildPhase);
-        test.ok(buildPhase.files);
-        test.equal(buildPhase.files.length, 1);
-        test.ok(buildPhase.dstPath);
-        test.equal(buildPhase.dstPath, '"$(CONTENTS_FOLDER_PATH)/Watch"');
-        test.equal(buildPhase.dstSubfolderSpec, 16);
+        assert.ok(buildPhase);
+        assert.ok(buildPhase.files);
+        assert.equal(buildPhase.files.length, 1);
+        assert.ok(buildPhase.dstPath);
+        assert.equal(buildPhase.dstPath, '"$(CONTENTS_FOLDER_PATH)/Watch"');
+        assert.equal(buildPhase.dstSubfolderSpec, 16);
 
-        test.done();
-    },
-    'should create a new watch2 app with appropriate target extension': function (test) {
+    });
+
+    it('should create a new watch2 app with appropriate target extension', () => {
         var target = proj.addTarget(TARGET_NAME, TARGET_TYPE);
 
-        var buildPhase = proj.buildPhaseObject('PBXCopyFilesBuildPhase', 'Embed Watch Content', target.uuid)
+        var buildPhase = proj.buildPhaseObject('PBXCopyFilesBuildPhase', 'Embed Watch Content', target.uuid);
 
         var buildPhaseFile = buildPhase.files[0];
-        test.ok(buildPhaseFile.value);
+        assert.ok(buildPhaseFile.value);
         var buildPhaseFileSection = proj.pbxBuildFileSection()[buildPhaseFile.value];
-        test.ok(buildPhaseFileSection);
-        test.ok(buildPhaseFileSection.fileRef);
+        assert.ok(buildPhaseFileSection);
+        assert.ok(buildPhaseFileSection.fileRef);
 
         var buildPhaseFileRef = proj.pbxFileReferenceSection()[buildPhaseFileSection.fileRef];
-        test.ok(buildPhaseFileRef);
-        test.ok(buildPhaseFileRef.name);
-        test.ok(buildPhaseFileRef.path);
+        assert.ok(buildPhaseFileRef);
+        assert.ok(buildPhaseFileRef.name);
+        assert.ok(buildPhaseFileRef.path);
 
         var quotedTargetPath = "\"" + TARGET_NAME + ".app\"";
-        test.equal(buildPhaseFileRef.name, quotedTargetPath);
-        test.equal(buildPhaseFileRef.path, quotedTargetPath);
+        assert.equal(buildPhaseFileRef.name, quotedTargetPath);
+        assert.equal(buildPhaseFileRef.path, quotedTargetPath);
 
-        test.done();
-    }
-}
+    });
+});

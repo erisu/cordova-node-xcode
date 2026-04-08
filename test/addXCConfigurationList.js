@@ -16,8 +16,10 @@
     specific language governing permissions and limitations
     under the License.
 */
+const { describe, it, beforeEach } = require('node:test');
+const assert = require('node:assert');
 
-var fullProject = require('./fixtures/full-project')
+var fullProject = require('./fixtures/full-project'),
     fullProjectStr = JSON.stringify(fullProject),
     pbx = require('../lib/pbxProject'),
     proj = new pbx('.'),
@@ -50,27 +52,26 @@ function cleanHash() {
     return JSON.parse(fullProjectStr);
 }
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
 
-exports.addXCConfigurationList = {
-    'should return an XCConfigurationList': function (test) {
+describe('addXCConfigurationList', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
+    it('should return an XCConfigurationList', () => {
         var myProj = new pbx('test/parser/projects/full.pbxproj').parseSync(),
             xcConfigurationList = myProj.addXCConfigurationList([debugConfiguration, releaseConfiguration], 'Release', 'XCConfigurationList Comment');
 
-        test.ok(typeof xcConfigurationList === 'object');
-        test.done();
-    },
-    'should set a uuid on the XCConfigurationList': function (test) {
+        assert.ok(typeof xcConfigurationList === 'object');
+    });
+
+    it('should set a uuid on the XCConfigurationList', () => {
          var myProj = new pbx('test/parser/projects/full.pbxproj').parseSync(),
             xcConfigurationList = myProj.addXCConfigurationList([debugConfiguration, releaseConfiguration], 'Release', 'XCConfigurationList Comment');
 
-        test.ok(xcConfigurationList.uuid);
-        test.done();
-    },
-    'should add configurations to pbxBuildConfigurationSection': function (test) {
+        assert.ok(xcConfigurationList.uuid);
+    });
+
+    it('should add configurations to pbxBuildConfigurationSection', () => {
         var myProj = new pbx('test/parser/projects/full.pbxproj').parseSync(),
             pbxBuildConfigurationSection = myProj.pbxXCBuildConfigurationSection(),
             xcConfigurationList = myProj.addXCConfigurationList([debugConfiguration, releaseConfiguration], 'Release', 'XCConfigurationList Comment'),
@@ -78,29 +79,29 @@ exports.addXCConfigurationList = {
 
         for (var index = 0; index < xcConfigurationListConfigurations.length; index++) {
             var configuration = xcConfigurationListConfigurations[index];
-            test.ok(pbxBuildConfigurationSection[configuration.value]);
+            assert.ok(pbxBuildConfigurationSection[configuration.value]);
         }
 
-        test.done();
-    },
-    'should add XCConfigurationList to pbxXCConfigurationListSection': function (test) {
+    });
+
+    it('should add XCConfigurationList to pbxXCConfigurationListSection', () => {
         var myProj = new pbx('test/parser/projects/full.pbxproj').parseSync(),
             pbxXCConfigurationListSection = myProj.pbxXCConfigurationList();
             xcConfigurationList = myProj.addXCConfigurationList([debugConfiguration, releaseConfiguration], 'Release', 'XCConfigurationList Comment');
 
-        test.ok(pbxXCConfigurationListSection[xcConfigurationList.uuid]);
-        test.done();
-    },
-    'should add XCConfigurationList object correctly': function (test) {
+        assert.ok(pbxXCConfigurationListSection[xcConfigurationList.uuid]);
+    });
+
+    it('should add XCConfigurationList object correctly', () => {
         var myProj = new pbx('test/parser/projects/full.pbxproj').parseSync(),
             pbxXCConfigurationListSection = myProj.pbxXCConfigurationList();
             xcConfigurationList = myProj.addXCConfigurationList([debugConfiguration, releaseConfiguration], 'Release', 'XCConfigurationList Comment'),
             xcConfigurationListInPbx = pbxXCConfigurationListSection[xcConfigurationList.uuid];
 
-        test.deepEqual(xcConfigurationListInPbx, xcConfigurationList.xcConfigurationList);
-        test.done();
-    },
-    'should add correct configurations to XCConfigurationList and to pbxBuildConfigurationSection': function (test) {
+        assert.deepEqual(xcConfigurationListInPbx, xcConfigurationList.xcConfigurationList);
+    });
+
+    it('should add correct configurations to XCConfigurationList and to pbxBuildConfigurationSection', () => {
         var myProj = new pbx('test/parser/projects/full.pbxproj').parseSync(),
             pbxXCConfigurationListSection = myProj.pbxXCConfigurationList();
             pbxBuildConfigurationSection = myProj.pbxXCBuildConfigurationSection(),
@@ -114,11 +115,11 @@ exports.addXCConfigurationList = {
             expectedConfigurations.push(pbxBuildConfigurationSection[configuration.value]);
         }
 
-        test.deepEqual(expectedConfigurations, [debugConfiguration, releaseConfiguration]);
-        test.deepEqual(xcConfigurationListInPbx.buildConfigurations, xcConfigurationListConfigurations);
-        test.done();
-    },
-    'should set comments for pbxBuildConfigurations': function (test) {
+        assert.deepEqual(expectedConfigurations, [debugConfiguration, releaseConfiguration]);
+        assert.deepEqual(xcConfigurationListInPbx.buildConfigurations, xcConfigurationListConfigurations);
+    });
+
+    it('should set comments for pbxBuildConfigurations', () => {
         var myProj = new pbx('test/parser/projects/full.pbxproj').parseSync(),
             pbxBuildConfigurationSection = myProj.pbxXCBuildConfigurationSection(),
             xcConfigurationList = myProj.addXCConfigurationList([debugConfiguration, releaseConfiguration], 'Release', 'XCConfigurationList Comment'),
@@ -126,9 +127,8 @@ exports.addXCConfigurationList = {
 
         for (var index = 0; index < xcConfigurationListConfigurations.length; index++) {
             var configuration = xcConfigurationListConfigurations[index];
-            test.ok(pbxBuildConfigurationSection[configuration.value + '_comment']);
+            assert.ok(pbxBuildConfigurationSection[configuration.value + '_comment']);
         }
 
-        test.done();
-    }
-}
+    });
+});

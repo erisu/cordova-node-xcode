@@ -17,6 +17,8 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+
 var PEG = require('pegjs'),
     fs = require('fs'),
     pbx = fs.readFileSync('test/parser/projects/comments.pbxproj', 'utf-8'),
@@ -25,7 +27,8 @@ var PEG = require('pegjs'),
 
 // Cordova 1.8 has the Apache headers as comments in the pbxproj file
 // I DON'T KNOW WHY
-exports['should ignore comments outside the main object'] = function (test) {
-    parser.parse(pbx);
-    test.done();
-}
+describe('parser/comments', () => {
+    it('should ignore comments outside the main object', () => {
+        parser.parse(pbx);
+    });
+});

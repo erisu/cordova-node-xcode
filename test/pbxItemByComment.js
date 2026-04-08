@@ -16,8 +16,10 @@
     specific language governing permissions and limitations
     under the License.
 */
+const { describe, it, beforeEach } = require('node:test');
+const assert = require('node:assert');
 
-var fullProject = require('./fixtures/full-project')
+var fullProject = require('./fixtures/full-project'),
     fullProjectStr = JSON.stringify(fullProject),
     pbx = require('../lib/pbxProject'),
     proj = new pbx('.');
@@ -26,44 +28,42 @@ function cleanHash() {
     return JSON.parse(fullProjectStr);
 }
 
-exports.setUp = function (callback) {
-    proj.hash = cleanHash();
-    callback();
-}
+describe('pbxItemByComment', () => {
+    beforeEach(() => {
+        proj.hash = cleanHash();
+    });
 
-exports.pbxItemByComment = {
-    'should return PBXTargetDependency': function (test) {
+    it('should return PBXTargetDependency', () => {
         var pbxItem = proj.pbxItemByComment('PBXTargetDependency', 'PBXTargetDependency');
 
-        test.ok(pbxItem);
-        test.equals(pbxItem.isa, 'PBXTargetDependency');
-        test.done()
-    },
-    'should return PBXContainerItemProxy': function (test) {
+        assert.ok(pbxItem);
+        assert.equal(pbxItem.isa, 'PBXTargetDependency');
+    });
+
+    it('should return PBXContainerItemProxy', () => {
         var pbxItem = proj.pbxItemByComment('libPhoneGap.a', 'PBXReferenceProxy');
 
-        test.ok(pbxItem);
-        test.equals(pbxItem.isa, 'PBXReferenceProxy');
-        test.done()
-    },
-    'should return PBXResourcesBuildPhase': function (test) {
+        assert.ok(pbxItem);
+        assert.equal(pbxItem.isa, 'PBXReferenceProxy');
+    });
+
+    it('should return PBXResourcesBuildPhase', () => {
         var pbxItem = proj.pbxItemByComment('Resources', 'PBXResourcesBuildPhase');
 
-        test.ok(pbxItem);
-        test.equals(pbxItem.isa, 'PBXResourcesBuildPhase');
-        test.done()
-    },
-    'should return PBXShellScriptBuildPhase': function (test) {
+        assert.ok(pbxItem);
+        assert.equal(pbxItem.isa, 'PBXResourcesBuildPhase');
+    });
+
+    it('should return PBXShellScriptBuildPhase', () => {
         var pbxItem = proj.pbxItemByComment('Touch www folder', 'PBXShellScriptBuildPhase');
 
-        test.ok(pbxItem);
-        test.equals(pbxItem.isa, 'PBXShellScriptBuildPhase');
-        test.done()
-    },
-    'should return null when PBXNativeTarget not found': function (test) {
+        assert.ok(pbxItem);
+        assert.equal(pbxItem.isa, 'PBXShellScriptBuildPhase');
+    });
+
+    it('should return null when PBXNativeTarget not found', () => {
         var pbxItem = proj.pbxItemByComment('Invalid', 'PBXTargetDependency');
 
-        test.equal(pbxItem, null);
-        test.done()
-    }
-}
+        assert.equal(pbxItem, null);
+    });
+});

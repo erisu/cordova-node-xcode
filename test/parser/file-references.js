@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+const assert = require('assert');
+
 var PEG = require('pegjs'),
     fs = require('fs'),
     pbx = fs.readFileSync('test/parser/projects/file-references.pbxproj', 'utf-8'),
@@ -25,7 +28,8 @@ var PEG = require('pegjs'),
     rawProj = parser.parse(pbx),
     project = rawProj.project;
 
-exports['should have a PBXFileReference section'] = function (test) {
-    test.ok(project.objects['PBXFileReference']);
-    test.done();
-}
+describe('parser/file-references', () => {
+    it('should have a PBXFileReference section', () => {
+        assert.ok(project.objects['PBXFileReference']);
+    });
+});

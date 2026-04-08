@@ -17,6 +17,9 @@
     under the License.
 */
 
+const { describe, it } = require('node:test');
+const assert = require('assert');
+
 var PEG = require('pegjs'),
 	fs = require('fs'),
 	pbx = fs.readFileSync('test/parser/projects/section-split.pbxproj', 'utf-8'),
@@ -25,30 +28,27 @@ var PEG = require('pegjs'),
 	rawProj = parser.parse(pbx),
 	project = rawProj.project;
 
-exports['should have a PBXTargetDependency section'] = function (test) {
-	test.ok(project.objects['PBXTargetDependency']);
-	test.done();
-}
+describe('parser/section-split', () => {
+    it('should have a PBXTargetDependency section', () => {
+        assert.ok(project.objects['PBXTargetDependency']);
+    });
 
-exports['should have the right child of PBXTargetDependency section'] = function (test) {
-	test.ok(project.objects['PBXTargetDependency']['301BF551109A68C00062928A']);
-	test.done();
-}
+    it('should have the right child of PBXTargetDependency section', () => {
+        assert.ok(project.objects['PBXTargetDependency']['301BF551109A68C00062928A']);
+    });
 
-exports['should have the right properties on the dependency'] = function (test) {
-	var dependency = project.objects['PBXTargetDependency']['301BF551109A68C00062928A'];
+    it('should have the right properties on the dependency', () => {
+        const dependency = project.objects['PBXTargetDependency']['301BF551109A68C00062928A'];
 
-	test.equal(dependency.isa, 'PBXTargetDependency')
-	test.equal(dependency.name, 'PhoneGapLib')
-	test.equal(dependency.targetProxy, '301BF550109A68C00062928A')
-	test.equal(dependency['targetProxy_comment'], 'PBXContainerItemProxy')
+        assert.strictEqual(dependency.isa, 'PBXTargetDependency');
+        assert.strictEqual(dependency.name, 'PhoneGapLib');
+        assert.strictEqual(dependency.targetProxy, '301BF550109A68C00062928A');
+        assert.strictEqual(dependency['targetProxy_comment'], 'PBXContainerItemProxy');
+    });
 
-	test.done();
-}
-
-exports['should merge two PBXTargetDependency sections'] = function (test) {
-	test.ok(project.objects['PBXTargetDependency']['301BF551109A68C00062928A']);
-	test.ok(project.objects['PBXTargetDependency']['45FDD1944D304A9F96DF3AC6']);
-	test.done();
-}
+    it('should merge two PBXTargetDependency sections', () => {
+        assert.ok(project.objects['PBXTargetDependency']['301BF551109A68C00062928A']);
+        assert.ok(project.objects['PBXTargetDependency']['45FDD1944D304A9F96DF3AC6']);
+    });
+});
 
