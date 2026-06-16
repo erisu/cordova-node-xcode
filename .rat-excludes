@@ -17,6 +17,6 @@
 
 .git/
 coverage/
-test/fixtures/
-**/*.pbxproj
 node_modules/
+test/parser/projects/**/*.pbxproj
+lcov.info
